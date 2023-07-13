@@ -39,11 +39,11 @@ export const NewCard: React.FC<{
         <div css={{ display: "flex", flexDirection: "column" }}>
           <input
             type="text"
-            defaultValue={"제목을 입력하세요"}
+            placeholder={"제목을 입력하세요"}
             onChange={handleChangeTitle}
           />
           <textarea
-            defaultValue={"내용을 입력하세요"}
+            placeholder={"내용을 입력하세요"}
             onChange={handleChangeContent}
           />
         </div>
