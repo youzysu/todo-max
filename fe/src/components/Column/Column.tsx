@@ -1,23 +1,26 @@
+import { Card, CardData } from "@components/Card";
+import { NewCard } from "@components/NewCard";
 import { useState } from "react";
 import { ColumnHeader } from "./ColumnHeader";
-import { Card, CardData } from "@components/Card";
 
-interface ColumnDataProps {
+export interface ColumnDataProps {
   columnId: number;
   columnName: string;
   cards: CardData[];
-  reFetch: () => void;
+  updateColumnList: () => void;
 }
 
 export const Column = ({
   columnId,
   columnName,
   cards,
-  reFetch,
+  updateColumnList,
 }: ColumnDataProps) => {
-  const [isAdding, setIsAdding] = useState<boolean>(true);
-  const handleClickAddCard = () => setIsAdding(true);
+  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const handleClickAddCard = () => setIsAdding((prev) => !prev);
+  const handleClickCancelAdd = () => setIsAdding(false);
   const cardCount = cards.length;
+  const prevFirstCardId = cards[0]?.cardId;
 
   return (
     <div>
@@ -27,12 +30,19 @@ export const Column = ({
         cardCount={cardCount}
         handleClickAddCard={handleClickAddCard}
       />
-      {isAdding && <Card cardStatus={"editing"} reFetch={reFetch} />}
+      {isAdding && (
+        <NewCard
+          columnId={columnId}
+          handleClickCancelAdd={handleClickCancelAdd}
+          nextCardId={prevFirstCardId}
+          updateColumnList={updateColumnList}
+        />
+      )}
       {cards.map((cardData, index) => (
         <Card
           key={`${index}_${cardData.cardId}`}
           cardData={cardData}
-          reFetch={reFetch}
+          updateColumnList={updateColumnList}
         />
       ))}
     </div>

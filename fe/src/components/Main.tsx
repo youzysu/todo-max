@@ -1,11 +1,11 @@
 import { useFetch } from "hooks/useFetch";
-import Column from "./Column";
 import { useEffect, useState } from "react";
+import Column from "./Column";
 
 export const Main = () => {
   const [columnList, setColumnList] = useState([]);
   const { response, errorMsg, loading, fetch } = useFetch({
-    url: "/",
+    url: "/api",
     method: "get",
     autoFetch: true,
   });
@@ -16,12 +16,12 @@ export const Main = () => {
     }
   }, [response]);
 
-  const reFetch = async () => {
+  const updateColumnList = async () => {
     await fetch();
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (errorMsg) return <div>{errorMsg}</div>;
+  // if (loading) return <div>Loading...</div>;
+  // if (errorMsg) return <div>{errorMsg}</div>;
 
   return (
     <div css={{ display: "flex" }}>
@@ -32,7 +32,7 @@ export const Main = () => {
             columnId={columnId}
             columnName={columnName}
             cards={cards}
-            reFetch={reFetch}
+            updateColumnList={updateColumnList}
           />
         ))}
     </div>
