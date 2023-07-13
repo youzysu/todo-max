@@ -1,10 +1,10 @@
+import { Button } from "@components/base/Button";
+import { RemoveModal } from "@components/base/RemoveModal";
+import { ClosedIcon } from "@components/icon/ClosedIcon";
+import { EditIcon } from "@components/icon/EditIcon";
 import { colors } from "@constants/colors";
 import { useFetch } from "hooks/useFetch";
 import { useState } from "react";
-import { Button } from "./base/Button";
-import { RemoveModal } from "./base/RemoveModal";
-import { ClosedIcon } from "./icon/ClosedIcon";
-import { EditIcon } from "./icon/EditIcon";
 
 export interface CardData {
   cardId: number;
@@ -107,10 +107,10 @@ export const Card = ({ cardData, updateColumnList }: CardProps) => {
         </div>
         {status !== "editing" && (
           <div css={{ right: "0" }}>
-            <Button onClick={openModal}>
+            <Button pattern="icon" onClick={openModal}>
               <ClosedIcon size={24} rgb={colors.textDefault} />
             </Button>
-            <Button onClick={handleClickEdit}>
+            <Button pattern="icon" onClick={handleClickEdit}>
               <EditIcon size={24} rgb={colors.textDefault} />
             </Button>
           </div>
@@ -119,8 +119,12 @@ export const Card = ({ cardData, updateColumnList }: CardProps) => {
 
       {status === "editing" && (
         <div css={{ display: "flex", justifyContent: "space-around" }}>
-          <Button variant="gray" text="취소" onClick={handleClickCancelEdit} />
-          <Button variant="blue" text="등록" onClick={handleClickUpdate} />
+          <Button pattern="text" variant="gray" onClick={handleClickCancelEdit}>
+            <span>취소</span>
+          </Button>
+          <Button pattern="text" variant="blue" onClick={handleClickUpdate}>
+            <span>등록</span>
+          </Button>
         </div>
       )}
 

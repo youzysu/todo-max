@@ -33,10 +33,18 @@ export const ColumnHeader = ({
         <Badge cardCount={cardCount} />
       </div>
       <div css={{ display: "flex" }}>
-        <Button onClick={handleClickAddCard}>
+        <Button
+          pattern="icon"
+          onClick={handleClickAddCard}
+          iconHoverColor={colors.surfaceBrand}
+        >
           <PlusIcon size={24} rgb={colors.textWeak} />
         </Button>
-        <Button onClick={handleClickRemoveColumn}>
+        <Button
+          pattern="icon"
+          onClick={handleClickRemoveColumn}
+          iconHoverColor={colors.textDanger}
+        >
           <ClosedIcon size={24} rgb={colors.textWeak} />
         </Button>
       </div>
