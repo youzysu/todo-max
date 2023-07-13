@@ -1,9 +1,9 @@
 import { colors } from "@constants/colors";
+import { useFetch } from "hooks/useFetch";
+import { useState } from "react";
 import { Button } from "./base/Button";
 import { ClosedIcon } from "./icon/ClosedIcon";
 import { EditIcon } from "./icon/EditIcon";
-import { useState } from "react";
-import { useFetch } from "hooks/useFetch";
 
 export interface CardData {
   cardId: number;
@@ -13,26 +13,20 @@ export interface CardData {
 }
 
 interface CardProps {
-  cardData?: CardData;
-  cardStatus?: "editing" | "normal";
-  reFetch: () => void;
+  cardData: CardData;
+  updateColumnList: () => void;
 }
-
-export const Card = ({
-  cardData,
-  cardStatus = "normal",
-  reFetch,
-}: CardProps) => {
-  const [status, setStatus] = useState(cardStatus);
-  const [title, setTitle] = useState(cardData?.title);
-  const [content, setContent] = useState(cardData?.content);
+export const Card = ({ cardData, updateColumnList }: CardProps) => {
+  const [status, setStatus] = useState("normal");
+  const [title, setTitle] = useState(cardData.title);
+  const [content, setContent] = useState(cardData.content);
 
   const {
     errorMsg: errorMsgDelete,
     loading: loadingDelete,
     fetch: fetchDelete,
   } = useFetch({
-    url: `/cards/${cardData?.cardId}`,
+    url: `/api/cards/${cardData.cardId}`,
     method: "delete",
   });
 
@@ -41,7 +35,7 @@ export const Card = ({
     loading: loadingUpdate,
     fetch: fetchUpdate,
   } = useFetch({
-    url: `/cards/${cardData?.cardId}`,
+    url: `/api/cards/${cardData.cardId}`,
     method: "put",
     body: {
       changedCardTitle: title,
@@ -51,14 +45,14 @@ export const Card = ({
 
   const handleClickRemove = async () => {
     await fetchDelete();
-    reFetch();
+    updateColumnList();
   };
 
   const handleClickUpdate = async () => {
-    if (cardData?.title !== title || cardData?.content !== content) {
+    if (cardData.title !== title || cardData.content !== content) {
       setStatus("normal");
       await fetchUpdate();
-      reFetch();
+      updateColumnList();
     }
   };
 
@@ -68,8 +62,8 @@ export const Card = ({
 
   const handleClickCancelEdit = () => {
     setStatus("normal");
-    setContent(cardData?.content);
-    setTitle(cardData?.title);
+    setContent(cardData.content);
+    setTitle(cardData.title);
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,11 +75,7 @@ export const Card = ({
   };
 
   return (
-    <div
-      css={{
-        border: "1px solid black",
-      }}
-    >
+    <div css={{ border: "1px solid black" }}>
       <div css={{ display: "flex", justifyContent: "space-between" }}>
         <div css={{ display: "flex", flexDirection: "column" }}>
           {status === "editing" ? (

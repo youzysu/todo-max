@@ -1,6 +1,8 @@
-import { rest } from "msw";
-import { CARDS } from "./data";
 import { CardData } from "@components/Card";
+import { faker } from "@faker-js/faker";
+import { rest } from "msw";
+import { CardAddRequestBody } from "utils/http";
+import { CARDS } from "./data";
 
 interface RequestBodyType {
   changedCardTitle: string;
@@ -58,11 +60,11 @@ let columnData: Column[] = [
 ];
 
 export const handlers = [
-  rest.get("/", (req, res, ctx) => {
+  rest.get("/api", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(columnData));
   }),
 
-  rest.delete("/cards/:id", (req, res, ctx) => {
+  rest.delete("/api/cards/:id", (req, res, ctx) => {
     const { id } = req.params;
 
     columnData = columnData.map((column) => ({
@@ -73,7 +75,7 @@ export const handlers = [
     return res(ctx.status(200), ctx.json(columnData));
   }),
 
-  rest.put("/cards/:id", (req, res, ctx) => {
+  rest.put("/api/cards/:id", (req, res, ctx) => {
     const { id } = req.params;
     const { changedCardTitle, changedCardContent } =
       req.body as RequestBodyType;
@@ -95,5 +97,28 @@ export const handlers = [
     }));
 
     return res(ctx.status(200), ctx.json(columnData));
+  }),
+
+  rest.post("/api/cards", async (req, res, ctx) => {
+    const { columnId, cardTitle, cardContent } =
+      await req.json<CardAddRequestBody>();
+    const newCard = {
+      cardId: Number(faker.number.octal()),
+      title: cardTitle,
+      content: cardContent,
+      writer: faker.name.firstName(),
+    };
+
+    columnData = columnData.map((column) => {
+      if (column.columnId === columnId) {
+        return {
+          ...column,
+          cards: [newCard, ...column.cards],
+        };
+      }
+      return column;
+    });
+
+    return res(ctx.status(200), ctx.json(newCard));
   }),
 ];

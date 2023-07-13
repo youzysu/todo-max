@@ -1,3 +1,17 @@
+export type CardAddRequestBody = {
+  columnId: number;
+  cardTitle: string;
+  cardContent: string;
+  nextCardId: number;
+};
+
+export type RequestMap = {
+  "/api/cards": CardAddRequestBody;
+  "/api": undefined;
+};
+
+export type RequestBody = RequestMap[keyof RequestMap];
+
 export const http = {
   get: async (url: string) => {
     const response = await fetch(url);
