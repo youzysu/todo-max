@@ -10,7 +10,7 @@ export const Header = () => {
   return (
     <div>
       <div>TODO LIST</div>
-      <Button onClick={historyFun}>
+      <Button pattern="icon" onClick={historyFun}>
         <HistoryIcon size={24} rgb={colors.textDefault} />
       </Button>
     </div>

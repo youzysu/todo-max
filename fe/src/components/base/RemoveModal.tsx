@@ -54,8 +54,12 @@ export const RemoveModal = ({
       >
         <div>{text}</div>
         <div css={{ display: "flex", justifyContent: "space-between" }}>
-          <Button variant="gray" onClick={handleClickClose} text="취소" />
-          <Button variant="red" onClick={removeHandler} text="삭제" />
+          <Button pattern="text" variant="gray" onClick={handleClickClose}>
+            <span>취소</span>
+          </Button>
+          <Button pattern="text" variant="red" onClick={removeHandler}>
+            <span>삭제</span>
+          </Button>
         </div>
       </div>
     </dialog>

@@ -10,7 +10,7 @@ export const NewCard: React.FC<{
 }> = ({ columnId, nextCardId, handleClickCancelAdd, updateColumnList }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const { response: newCard, fetch: fetchAdd } = useFetch({
+  const { fetch: fetchAdd } = useFetch({
     url: "/api/cards",
     method: "post",
     body: {
@@ -20,6 +20,7 @@ export const NewCard: React.FC<{
       nextCardId: nextCardId,
     },
   });
+  const isAllFilled = !!title && !!content;
 
   const handleChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -49,8 +50,17 @@ export const NewCard: React.FC<{
         </div>
       </div>
       <div css={{ display: "flex", justifyContent: "space-around" }}>
-        <Button variant="gray" text="취소" onClick={handleClickCancelAdd} />
-        <Button variant="blue" text="등록" onClick={handleClickAdd} />
+        <Button pattern="text" variant="gray" onClick={handleClickCancelAdd}>
+          <span>취소</span>
+        </Button>
+        <Button
+          pattern="text"
+          variant="blue"
+          onClick={handleClickAdd}
+          disabled={!isAllFilled}
+        >
+          <span>등록</span>
+        </Button>
       </div>
     </div>
   );
