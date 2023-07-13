@@ -22,6 +22,8 @@ export const Card = ({ cardData, updateColumnList }: CardProps) => {
   const [title, setTitle] = useState(cardData.title);
   const [content, setContent] = useState(cardData.content);
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const isChanged = cardData.title !== title || cardData.content !== content;
+  const isAllFilled = !!title && !!content;
 
   const {
     errorMsg: errorMsgDelete,
@@ -59,10 +61,14 @@ export const Card = ({ cardData, updateColumnList }: CardProps) => {
   };
 
   const handleClickUpdate = async () => {
-    if (cardData.title !== title || cardData.content !== content) {
+    if (isChanged && isAllFilled) {
       setStatus("normal");
       await fetchUpdate();
       updateColumnList();
+    }
+
+    if (!isChanged) {
+      setStatus("normal");
     }
   };
 
@@ -107,7 +113,11 @@ export const Card = ({ cardData, updateColumnList }: CardProps) => {
         </div>
         {status !== "editing" && (
           <div css={{ right: "0" }}>
-            <Button pattern="icon" onClick={openModal}>
+            <Button
+              pattern="icon"
+              onClick={openModal}
+              iconHoverColor={colors.red}
+            >
               <ClosedIcon size={24} rgb={colors.textDefault} />
             </Button>
             <Button pattern="icon" onClick={handleClickEdit}>
@@ -122,8 +132,13 @@ export const Card = ({ cardData, updateColumnList }: CardProps) => {
           <Button pattern="text" variant="gray" onClick={handleClickCancelEdit}>
             <span>취소</span>
           </Button>
-          <Button pattern="text" variant="blue" onClick={handleClickUpdate}>
-            <span>등록</span>
+          <Button
+            pattern="text"
+            variant="blue"
+            onClick={handleClickUpdate}
+            disabled={!isAllFilled}
+          >
+            <span>저장</span>
           </Button>
         </div>
       )}

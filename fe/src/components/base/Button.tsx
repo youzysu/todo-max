@@ -1,4 +1,5 @@
 import { colors } from "@constants/colors";
+import { radius } from "@constants/objectStyle";
 import { css } from "@emotion/react";
 import { ButtonHTMLAttributes } from "react";
 
@@ -37,11 +38,11 @@ const buttonStyle = ({
   return css`
     width: ${pattern === "text" ? "132px" : "auto"};
     height: ${pattern === "text" ? "32px" : "auto"};
-    outline: "none";
-    padding: "4px";
-    display: "flex";
-    justify-content: "center";
-    align-items: "center";
+    outline: none;
+    padding: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     &:hover {
       opacity: 0.8;
       & svg,
@@ -50,11 +51,12 @@ const buttonStyle = ({
       }
     }
     &:disabled {
-      cursor: "default";
+      cursor: default;
       opacity: 0.3;
     }
     color: ${VARIANTS[variant].color};
     background: ${VARIANTS[variant].background};
+    ${pattern === "text" && radius.radius8}
   `;
 };
 
