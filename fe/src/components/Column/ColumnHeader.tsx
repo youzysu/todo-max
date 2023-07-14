@@ -1,4 +1,5 @@
 import { Button } from "@components/base/Button";
+import { Text } from "@components/base/Text";
 import { ClosedIcon } from "@components/icon/ClosedIcon";
 import { PlusIcon } from "@components/icon/PlusIcon";
 import { colors } from "@constants/colors";
@@ -29,7 +30,9 @@ export const ColumnHeader = ({
       }}
     >
       <div css={{ display: "flex", gap: "4px", alignItems: "center" }}>
-        <span css={{ ...typography.display.bold[16] }}>{columnName}</span>
+        <Text typography={typography.display.bold[16]} color={colors.textBold}>
+          {columnName}
+        </Text>
         <Badge cardCount={cardCount} />
       </div>
       <div css={{ display: "flex" }}>
@@ -43,7 +46,7 @@ export const ColumnHeader = ({
         <Button
           pattern="icon"
           onClick={handleClickRemoveColumn}
-          iconHoverColor={colors.textDanger}
+          iconHoverColor={colors.red}
         >
           <ClosedIcon size={24} rgb={colors.textWeak} />
         </Button>
