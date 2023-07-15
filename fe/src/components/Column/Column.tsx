@@ -7,18 +7,18 @@ export interface ColumnDataProps {
   columnId: number;
   columnName: string;
   cards: CardData[];
-  updateColumnList: () => void;
+  onCardChanged: () => void;
 }
 
 export const Column = ({
   columnId,
   columnName,
   cards,
-  updateColumnList,
+  onCardChanged,
 }: ColumnDataProps) => {
   const [isAdding, setIsAdding] = useState<boolean>(false);
   const handleClickAddCard = () => setIsAdding((prev) => !prev);
-  const handleClickCancelAdd = () => setIsAdding(false);
+  const onAddCancelClick = () => setIsAdding(false);
   const cardCount = cards.length;
   const prevFirstCardId = cards[0]?.cardId;
 
@@ -33,16 +33,17 @@ export const Column = ({
       {isAdding && (
         <NewCard
           columnId={columnId}
-          handleClickCancelAdd={handleClickCancelAdd}
+          onAddCancelClick={onAddCancelClick}
           nextCardId={prevFirstCardId}
-          updateColumnList={updateColumnList}
+          onCardChanged={onCardChanged}
         />
       )}
       {cards.map((cardData, index) => (
         <Card
           key={`${index}_${cardData.cardId}`}
           cardData={cardData}
-          updateColumnList={updateColumnList}
+          onCardChanged={onCardChanged}
+          onMouseDown={() => {}}
         />
       ))}
     </div>

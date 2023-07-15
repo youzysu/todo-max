@@ -2,9 +2,9 @@ import { Button } from "@components/base/Button";
 import { RemoveModal } from "@components/base/RemoveModal";
 import { ClosedIcon } from "@components/icon/ClosedIcon";
 import { EditIcon } from "@components/icon/EditIcon";
-import { colors } from "@constants/colors";
+import { COLOR_VARIANTS } from "@constants/colors";
 import { useFetch } from "hooks/useFetch";
-import { useState } from "react";
+import { HTMLAttributes, useState } from "react";
 
 export interface CardData {
   cardId: number;
@@ -13,11 +13,12 @@ export interface CardData {
   writer: string;
 }
 
-interface CardProps {
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
   cardData: CardData;
-  updateColumnList: () => void;
+  onCardChanged: () => void;
 }
-export const Card = ({ cardData, updateColumnList }: CardProps) => {
+
+export const Card = ({ cardData, onCardChanged }: CardProps) => {
   const [status, setStatus] = useState("normal");
   const [title, setTitle] = useState(cardData.title);
   const [content, setContent] = useState(cardData.content);
@@ -57,14 +58,14 @@ export const Card = ({ cardData, updateColumnList }: CardProps) => {
 
   const handleClickRemove = async () => {
     await fetchDelete();
-    updateColumnList();
+    onCardChanged();
   };
 
   const handleClickUpdate = async () => {
     if (isChanged && isAllFilled) {
       setStatus("normal");
       await fetchUpdate();
-      updateColumnList();
+      onCardChanged();
     }
 
     if (!isChanged) {
@@ -116,12 +117,12 @@ export const Card = ({ cardData, updateColumnList }: CardProps) => {
             <Button
               pattern="icon"
               onClick={openModal}
-              iconHoverColor={colors.red}
+              iconHoverColor="surfaceDanger"
             >
-              <ClosedIcon size={24} rgb={colors.textDefault} />
+              <ClosedIcon size={24} rgb={COLOR_VARIANTS.textDefault} />
             </Button>
             <Button pattern="icon" onClick={handleClickEdit}>
-              <EditIcon size={24} rgb={colors.textDefault} />
+              <EditIcon size={24} rgb={COLOR_VARIANTS.textDefault} />
             </Button>
           </div>
         )}

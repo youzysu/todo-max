@@ -1,6 +1,6 @@
-import { colors } from "@constants/colors";
+import { COLOR_VARIANTS } from "@constants/colors";
 import { useState } from "react";
-import { History } from "./History";
+import { History } from "./ActionHistoryList/History";
 import { Button } from "./base/Button";
 import { HistoryIcon } from "./icon/HistoryIcon";
 
@@ -23,9 +23,9 @@ export const Header = () => {
         position: "relative",
       }}
     >
-      <div>TODO LIST</div>
+      <div>오직 너만을 위한 투두리스트 TODO LIST ONLY FOR YOU</div>
       <Button pattern="icon" onClick={openHistory}>
-        <HistoryIcon size={24} rgb={colors.textDefault} />
+        <HistoryIcon size={24} rgb={COLOR_VARIANTS.textDefault} />
       </Button>
       {isOpenHistory && <History closeHandler={closeHistory} />}
     </div>

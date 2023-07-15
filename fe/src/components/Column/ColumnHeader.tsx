@@ -2,8 +2,7 @@ import { Button } from "@components/base/Button";
 import { Text } from "@components/base/Text";
 import { ClosedIcon } from "@components/icon/ClosedIcon";
 import { PlusIcon } from "@components/icon/PlusIcon";
-import { colors } from "@constants/colors";
-import { typography } from "@constants/font";
+import { COLOR_VARIANTS } from "@constants/colors";
 import { Badge } from "./Badge";
 
 interface ColumnHeaderProps {
@@ -30,7 +29,7 @@ export const ColumnHeader = ({
       }}
     >
       <div css={{ display: "flex", gap: "4px", alignItems: "center" }}>
-        <Text typography={typography.display.bold[16]} color={colors.textBold}>
+        <Text typography="displayBold16" color="textBold">
           {columnName}
         </Text>
         <Badge cardCount={cardCount} />
@@ -39,16 +38,16 @@ export const ColumnHeader = ({
         <Button
           pattern="icon"
           onClick={handleClickAddCard}
-          iconHoverColor={colors.surfaceBrand}
+          iconHoverColor="surfaceBrand"
         >
-          <PlusIcon size={24} rgb={colors.textWeak} />
+          <PlusIcon size={24} rgb={COLOR_VARIANTS.textWeak} />
         </Button>
         <Button
           pattern="icon"
           onClick={handleClickRemoveColumn}
-          iconHoverColor={colors.red}
+          iconHoverColor="surfaceDanger"
         >
-          <ClosedIcon size={24} rgb={colors.textWeak} />
+          <ClosedIcon size={24} rgb={COLOR_VARIANTS.textWeak} />
         </Button>
       </div>
     </div>
