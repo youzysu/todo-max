@@ -1,4 +1,4 @@
-import { colors } from "@constants/colors";
+import { COLOR_VARIANTS, Color } from "@constants/colors";
 import { radius } from "@constants/objectStyle";
 import { css } from "@emotion/react";
 import { ButtonHTMLAttributes } from "react";
@@ -9,7 +9,7 @@ type ButtonPattern = "text" | "icon";
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   pattern: ButtonPattern;
-  iconHoverColor?: string;
+  iconHoverColor?: Color;
 }
 
 export const Button = ({
@@ -33,7 +33,7 @@ const buttonStyle = ({
 }: {
   variant?: ButtonVariant;
   pattern: ButtonPattern;
-  iconHoverColor?: string;
+  iconHoverColor?: Color;
 }) => {
   return css`
     width: ${pattern === "text" ? "132px" : "auto"};
@@ -47,34 +47,34 @@ const buttonStyle = ({
       opacity: 0.8;
       & svg,
       path {
-        fill: ${iconHoverColor};
+        fill: ${iconHoverColor && COLOR_VARIANTS[iconHoverColor]};
       }
     }
     &:disabled {
       cursor: default;
       opacity: 0.3;
     }
-    color: ${VARIANTS[variant].color};
-    background: ${VARIANTS[variant].background};
+    color: ${BUTTON_VARIANTS[variant].color};
+    background: ${BUTTON_VARIANTS[variant].background};
     ${pattern === "text" && radius.radius8}
   `;
 };
 
-const VARIANTS = {
+const BUTTON_VARIANTS = {
   blue: {
-    color: colors.textWhiteDefault,
-    background: colors.surfaceBrand,
+    color: COLOR_VARIANTS.textWhiteDefault,
+    background: COLOR_VARIANTS.surfaceBrand,
   },
   red: {
-    color: colors.textWhiteDefault,
-    background: colors.red,
+    color: COLOR_VARIANTS.textWhiteDefault,
+    background: COLOR_VARIANTS.surfaceDanger,
   },
   gray: {
-    color: colors.textDefault,
-    background: colors.surfaceAlt,
+    color: COLOR_VARIANTS.textDefault,
+    background: COLOR_VARIANTS.surfaceAlt,
   },
   transparent: {
-    color: colors.textDefault,
+    color: COLOR_VARIANTS.textDefault,
     background: "none",
   },
 };

@@ -1,8 +1,8 @@
-import { colors } from "@constants/colors";
+import { Button } from "@components/base/Button";
+import { ClosedIcon } from "@components/icon/ClosedIcon";
+import { COLOR_VARIANTS } from "@constants/colors";
 import { useFetch } from "hooks/useFetch";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "./base/Button";
-import { ClosedIcon } from "./icon/ClosedIcon";
 
 interface HistoryData {
   historyId: number;
@@ -90,7 +90,7 @@ export const History = ({ closeHandler }: { closeHandler: () => void }) => {
         </div>
         <div>
           <Button pattern="icon" onClick={handleClose}>
-            <ClosedIcon size={24} rgb={colors.textDefault} />
+            <ClosedIcon size={24} rgb={COLOR_VARIANTS.textDefault} />
             <div>닫기</div>
           </Button>
         </div>
@@ -110,7 +110,7 @@ export const History = ({ closeHandler }: { closeHandler: () => void }) => {
       </div>
       <div css={{ display: "flex", justifyContent: "flex-end" }}>
         <Button pattern="text" onClick={handleRemoveHistory}>
-          <span css={{ color: colors.red, fontWeight: "bold" }}>
+          <span css={{ color: COLOR_VARIANTS.textDanger, fontWeight: "bold" }}>
             기록 전체 삭제
           </span>
         </Button>

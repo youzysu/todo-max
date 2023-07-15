@@ -11,12 +11,10 @@ export const Main = () => {
   });
 
   useEffect(() => {
-    if (response) {
-      setColumnList(response);
-    }
+    response && setColumnList(response);
   }, [response]);
 
-  const updateColumnList = async () => {
+  const onCardChanged = async () => {
     await fetch();
   };
 
@@ -32,7 +30,7 @@ export const Main = () => {
             columnId={columnId}
             columnName={columnName}
             cards={cards}
-            updateColumnList={updateColumnList}
+            onCardChanged={onCardChanged}
           />
         ))}
     </div>

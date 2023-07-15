@@ -5,9 +5,9 @@ import { Button } from "./base/Button";
 export const NewCard: React.FC<{
   columnId: number;
   nextCardId: number;
-  handleClickCancelAdd: () => void;
-  updateColumnList: () => void;
-}> = ({ columnId, nextCardId, handleClickCancelAdd, updateColumnList }) => {
+  onAddCancelClick: () => void;
+  onCardChanged: () => void;
+}> = ({ columnId, nextCardId, onAddCancelClick, onCardChanged }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const { fetch: fetchAdd } = useFetch({
@@ -30,8 +30,8 @@ export const NewCard: React.FC<{
   };
   const handleClickAdd = async () => {
     await fetchAdd();
-    handleClickCancelAdd();
-    updateColumnList();
+    onAddCancelClick();
+    onCardChanged();
   };
 
   return (
@@ -50,7 +50,7 @@ export const NewCard: React.FC<{
         </div>
       </div>
       <div css={{ display: "flex", justifyContent: "space-around" }}>
-        <Button pattern="text" variant="gray" onClick={handleClickCancelAdd}>
+        <Button pattern="text" variant="gray" onClick={onAddCancelClick}>
           <span>취소</span>
         </Button>
         <Button
