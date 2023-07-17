@@ -1,3 +1,4 @@
+import { RemoveModal } from "@components/base/RemoveModal";
 import { Text } from "@components/base/Text";
 import { COLOR_VARIANTS } from "@constants/colors";
 import { useFetch } from "hooks/useFetch";
@@ -16,6 +17,7 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
   onClose,
 }) => {
   const [activeHistoryList, setActiveHistoryList] = useState([]);
+  const [isOpenModal, setIsOpenModal] = useState(false);
   const [rightPosition, setRightPosition] = useState(RIGHT_POSITION.CLOSE);
   const hasActiveHistory = activeHistoryList.length > 0;
 
@@ -34,16 +36,19 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
     setRightPosition(RIGHT_POSITION.CLOSE);
     setTimeout(onClose, 1000);
   };
+  const openModal = () => setIsOpenModal(true);
+  const closeModal = () => setIsOpenModal(false);
+
+  const onClickRemove = async () => {
+    closeModal();
+    await deleteHistoryFetch();
+    await getHistoryFetch();
+  };
 
   useEffect(() => {
     response && setActiveHistoryList(response);
     onOpen();
   }, [response]);
-
-  const onClearButtonClick = async () => {
-    await deleteHistoryFetch();
-    await getHistoryFetch();
-  };
 
   // TODO: CSS 분리 및 실행 순서 정리
   return (
@@ -73,7 +78,7 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
           }}
         >
           <ListArea activeHistoryList={activeHistoryList} />
-          <ClearArea onClearButtonClick={onClearButtonClick} />
+          <ClearArea onClearButtonClick={openModal} />
         </div>
       )}
       {!hasActiveHistory && (
@@ -81,6 +86,12 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
           사용자 활동 기록이 없습니다.
         </Text>
       )}
+      <RemoveModal
+        isOpen={isOpenModal}
+        removeHandler={onClickRemove}
+        closeHandler={closeModal}
+        text={"모든 사용자 활동 기록을 삭제할까요?"}
+      />
     </div>
   );
 };

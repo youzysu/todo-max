@@ -8,14 +8,17 @@ interface UseFetchProps<T = Record<string, unknown>> {
   autoFetch?: boolean;
 }
 
-export const useFetch = <
-  T extends Record<string, unknown> = Record<string, unknown>
->({
+export const useFetch = <T extends Record<string, unknown>>({
   url,
   method,
   body,
   autoFetch = false,
-}: UseFetchProps<T>) => {
+}: UseFetchProps<T>): {
+  response: any;
+  errorMsg: string;
+  loading: boolean;
+  fetch: () => Promise<void>;
+} => {
   const [response, setResponse] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
