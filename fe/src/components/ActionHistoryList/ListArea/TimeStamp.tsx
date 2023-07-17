@@ -13,8 +13,8 @@ export const TimeStamp: React.FC<{ timeStamp: string }> = ({ timeStamp }) => {
 
     const diffInMinutesText =
       diffInMinutes === 0 ? "방금" : `${diffInMinutes}분 전`;
-    const diffInHoursText = diffInHours === 0 ? "" : `${diffInHours}시간 전`;
-    const diffInDaysText = diffInDays === 0 ? "" : `${diffInDays}일 전`;
+    const diffInHoursText = `${diffInHours}시간 전`;
+    const diffInDaysText = `${diffInDays}일 전`;
 
     if (diffInDays > 0) {
       return diffInDaysText;
