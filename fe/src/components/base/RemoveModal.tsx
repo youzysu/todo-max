@@ -38,6 +38,7 @@ export const RemoveModal = ({
         ${dropShadow.up}
       `}
       ref={modalRef}
+      onClose={closeHandler}
     >
       <div
         css={{

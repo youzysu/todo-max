@@ -11,18 +11,13 @@ export const TimeStamp: React.FC<{ timeStamp: string }> = ({ timeStamp }) => {
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
 
-    const diffInMinutesText =
-      diffInMinutes === 0 ? "방금" : `${diffInMinutes}분 전`;
-    const diffInHoursText = `${diffInHours}시간 전`;
-    const diffInDaysText = `${diffInDays}일 전`;
-
     if (diffInDays > 0) {
-      return diffInDaysText;
+      return `${diffInDays}일 전`;
     }
     if (diffInHours > 0) {
-      return diffInHoursText;
+      return `${diffInHours}시간 전`;
     }
-    return diffInMinutesText;
+    return diffInMinutes === 0 ? "방금" : `${diffInMinutes}분 전`;
   };
 
   return (

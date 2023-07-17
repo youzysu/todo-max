@@ -32,10 +32,7 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
   });
 
   const onOpen = () => setRightPosition(RIGHT_POSITION.OPEN);
-  const onCloseButtonClick = () => {
-    setRightPosition(RIGHT_POSITION.CLOSE);
-    setTimeout(onClose, 1000);
-  };
+  const onCloseButtonClick = () => setRightPosition(RIGHT_POSITION.CLOSE);
   const openModal = () => setIsOpenModal(true);
   const closeModal = () => setIsOpenModal(false);
 
@@ -43,6 +40,9 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
     closeModal();
     await deleteHistoryFetch();
     await getHistoryFetch();
+  };
+  const onTransitionEnd = () => {
+    rightPosition === RIGHT_POSITION.CLOSE && onClose();
   };
 
   useEffect(() => {
@@ -67,6 +67,7 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
         borderRadius: "16px",
         padding: "4px",
       }}
+      onTransitionEnd={onTransitionEnd}
     >
       <TitleArea handleClose={onCloseButtonClick} />
       {hasActiveHistory && (
@@ -97,7 +98,7 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
 };
 
 const RIGHT_POSITION = {
-  OPEN: 16,
+  OPEN: 0,
   CLOSE: -350,
 };
 
