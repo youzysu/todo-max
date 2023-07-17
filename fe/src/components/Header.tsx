@@ -1,33 +1,34 @@
 import { COLOR_VARIANTS } from "@constants/colors";
 import { useState } from "react";
-import { History } from "./History";
+import ActionHistoryList from "./ActionHistoryList";
 import { Button } from "./base/Button";
+import { Text } from "./base/Text";
 import { HistoryIcon } from "./icon/HistoryIcon";
 
 export const Header = () => {
-  const [isOpenHistory, setIsOpenHistory] = useState(false);
+  const [isOpenActionHistory, setIsOpenActionHistory] = useState(false);
 
-  const openHistory = () => {
-    setIsOpenHistory(true);
-  };
-
-  const closeHistory = () => {
-    setIsOpenHistory(false);
-  };
+  const openActionHistory = () => setIsOpenActionHistory(true);
+  const closeActionHistory = () => setIsOpenActionHistory(false);
 
   return (
     <div
       css={{
         display: "flex",
+        width: "90%",
+        height: "64px",
         justifyContent: "space-between",
+        alignItems: "center",
         position: "relative",
       }}
     >
-      <div>오직 너만을 위한 투두리스트 TODO LIST ONLY FOR YOU</div>
-      <Button pattern="icon" onClick={openHistory}>
+      <Text typography="displayBold24">TODO LIST</Text>
+      <Button pattern="icon" onClick={openActionHistory}>
         <HistoryIcon size={24} rgb={COLOR_VARIANTS.textDefault} />
       </Button>
-      {isOpenHistory && <History closeHandler={closeHistory} />}
+      {isOpenActionHistory && (
+        <ActionHistoryList onClose={closeActionHistory} />
+      )}
     </div>
   );
 };

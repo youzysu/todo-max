@@ -29,13 +29,13 @@ let columnData: Column[] = [
         cardId: 3,
         title: "HTML/CSS 공부하기",
         content: "add, commit, push, rebase, merge",
-        writer: "jay",
+        writer: "web",
       },
       {
         cardId: 20,
         title: "블로그에 포스팅할 것",
         content: "모던 자바스크립트 1장",
-        writer: "jay",
+        writer: "web",
       },
     ],
   },
@@ -47,13 +47,13 @@ let columnData: Column[] = [
         cardId: 40,
         title: "HTML/CSS 공부하기",
         content: "add, commit, push, rebase, merge",
-        writer: "jay",
+        writer: "web",
       },
       {
         cardId: 30,
         title: "블로그에 포스팅할 것",
         content: "모던 자바스크립트 1장",
-        writer: "jay",
+        writer: "web",
       },
     ],
   },
@@ -62,16 +62,23 @@ let columnData: Column[] = [
 let historyData = [
   {
     historyId: 1,
-    historyContent: `'블로그에 포스팅할 것'을 '하고있는 일' 에서 '해야할 일'으로 '이동'하였습니다.`,
+    historyContent: `'블로그에 포스팅할 것'을(를) '하고있는 일'에서 '해야할 일'으로 '이동'하였습니다.`,
+    timeStamp: "2023-07-17 10:00:00",
   },
   {
     historyId: 2,
-    historyContent: `'블로그에 포스팅할 것'을 '하고있는 일' 에서 '해야할 일'으로 '이동'하였습니다.`,
+    historyContent: `'블로그에 포스팅할 것'을(를) '하고있는 일'에서 '해야할 일'으로 '이동'하였습니다.`,
+    timeStamp: "2023-07-16 10:00:00",
+  },
+  {
+    historyId: 3,
+    historyContent: `'블로그에 포스팅할 것'을(를) '하고있는 일'에서 '해야할 일'으로 '이동'하였습니다.`,
+    timeStamp: "2023-07-15 10:00:00",
   },
 ];
 
 export const handlers = [
-  rest.get("/api", (req, res, ctx) => {
+  rest.get("/api", (_, res, ctx) => {
     return res(ctx.status(200), ctx.json(columnData));
   }),
 
@@ -127,7 +134,7 @@ export const handlers = [
       cardId: Number(faker.number.octal()),
       title: cardTitle,
       content: cardContent,
-      writer: faker.name.firstName(),
+      writer: "web",
     };
 
     columnData = columnData.map((column) => {
