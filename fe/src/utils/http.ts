@@ -1,3 +1,7 @@
+const defaultHeaders = {
+  "Content-Type": "application/json",
+};
+
 const handleFetch = async (url: string, options?: RequestInit) => {
   const response = await fetch(url, options);
 
@@ -14,9 +18,7 @@ export const http = {
   post: async (url: string, body?: Record<string, unknown>) => {
     const options: RequestInit = {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: defaultHeaders,
       body: JSON.stringify(body),
     };
 
@@ -26,9 +28,7 @@ export const http = {
   put: async (url: string, body?: Record<string, unknown>) => {
     const options: RequestInit = {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: defaultHeaders,
       body: JSON.stringify(body),
     };
 
