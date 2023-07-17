@@ -5,7 +5,7 @@ export const TimeStamp: React.FC<{ timeStamp: string }> = ({ timeStamp }) => {
   const calculateTimeDiff = (timeStamp: string) => {
     const now = new Date();
     const generatedAtDate = new Date(timeStamp);
-    console.log(generatedAtDate);
+
     const diff = now.getTime() - generatedAtDate.getTime();
     const diffInMinutes = Math.floor(diff / 1000 / 60);
     const diffInHours = Math.floor(diffInMinutes / 60);
