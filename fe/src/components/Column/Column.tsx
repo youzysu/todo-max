@@ -20,7 +20,6 @@ export const Column = ({
   const handleClickAddCard = () => setIsAdding((prev) => !prev);
   const onAddCancelClick = () => setIsAdding(false);
   const cardCount = cards.length;
-  const prevFirstCardId = cards[0]?.cardId;
 
   return (
     <div css={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -34,7 +33,6 @@ export const Column = ({
         <NewCard
           columnId={columnId}
           onAddCancelClick={onAddCancelClick}
-          nextCardId={prevFirstCardId}
           onCardChanged={onCardChanged}
         />
       )}
