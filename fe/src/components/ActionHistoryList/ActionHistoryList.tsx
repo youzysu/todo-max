@@ -16,12 +16,10 @@ export interface HistoryData {
 export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
   onClose,
 }) => {
-  const [activeHistoryList, setActiveHistoryList] = useState([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [rightPosition, setRightPosition] = useState(RIGHT_POSITION.CLOSE);
-  const hasActiveHistory = activeHistoryList.length > 0;
 
-  const { response, fetch: getHistoryFetch } = useFetch({
+  const { response: activeHistoryList, fetch: getHistoryFetch } = useFetch({
     url: "/api/history",
     method: "get",
     autoFetch: true,
@@ -30,6 +28,8 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
     url: "/api/history",
     method: "delete",
   });
+
+  const hasActiveHistory = activeHistoryList && activeHistoryList.length > 0;
 
   const onOpen = () => setRightPosition(RIGHT_POSITION.OPEN);
   const onCloseButtonClick = () => setRightPosition(RIGHT_POSITION.CLOSE);
@@ -46,9 +46,8 @@ export const ActionHistoryList: React.FC<{ onClose: () => void }> = ({
   };
 
   useEffect(() => {
-    response && setActiveHistoryList(response);
     onOpen();
-  }, [response]);
+  }, [activeHistoryList]);
 
   // TODO: CSS 분리 및 실행 순서 정리
   return (
