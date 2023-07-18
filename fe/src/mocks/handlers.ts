@@ -57,6 +57,21 @@ let columnData: Column[] = [
       },
     ],
   },
+  {
+    columnId: 4,
+    columnName: "해야 할 일",
+    cards: CARDS,
+  },
+  {
+    columnId: 5,
+    columnName: "해야 할 일",
+    cards: CARDS,
+  },
+  {
+    columnId: 6,
+    columnName: "해야 할 일",
+    cards: CARDS,
+  },
 ];
 
 let historyData = [
@@ -101,6 +116,14 @@ export const handlers = [
     historyData = [];
 
     return res(ctx.status(200), ctx.json(historyData));
+  }),
+
+  rest.delete("/api/columns/:id", (req, res, ctx) => {
+    const { id } = req.params;
+
+    columnData = columnData.filter((column) => column.columnId !== Number(id));
+
+    return res(ctx.status(200), ctx.json(columnData));
   }),
 
   rest.put("/api/cards/:id", (req, res, ctx) => {
