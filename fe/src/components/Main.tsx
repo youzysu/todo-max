@@ -1,197 +1,148 @@
 import { css } from "@emotion/react";
+import { useDragDropContext } from "context/DragDropContext";
 import { useFetch } from "hooks/useFetch";
-import _, { debounce } from "lodash";
-import { useEffect, useRef, useState } from "react";
-import { CardData } from "./Card/Card";
-import { CloneCard } from "./Card/CloneCard";
+import { MoveCardBodyType } from "mocks/handlers";
+import { MouseEventHandler, useRef, useState } from "react";
+import { DraggingCard } from "./Card/DraggingCard";
 import Column from "./Column";
+import { ColumnInfo } from "./Column/Column";
 import { FAB } from "./FAB";
-
-export interface Position {
-  x: number;
-  y: number;
-}
-
-interface Card {
-  cardId: number;
-  title: string;
-  content: string;
-  writer: string;
-}
-
-interface Column {
-  columnId: number;
-  columnName: string;
-  cards: Card[];
-}
 
 export const Main = () => {
   const mainRef = useRef<HTMLDivElement>(null);
-  const [mousePosition, setMousePosition] = useState({
-    columnIndex: -1,
-    cardIndex: -1,
+  const {
+    isDragging,
+    draggingCard,
+    moveDragging,
+    position,
+    stopDrag,
+    moveGhost,
+    ghostInfo,
+  } = useDragDropContext();
+
+  const [cardPositionInfo, setCardPositionInfo] = useState<MoveCardBodyType>({
+    changedColumnId: 0,
+    topCardId: null,
+    bottomCardId: null,
   });
 
-  const [initialPosition, setInitialPosition] = useState<Position>({
-    x: 0,
-    y: 0,
-  });
-  const [columnList, setColumnList] = useState<Column[]>([]);
-  const [cloneCardData, setCloneCardData] = useState<CardData>();
-  const [bodyContent, setBodyContent] = useState({});
-
-  const { response, errorMsg, loading, fetch } = useFetch({
+  const {
+    response: columnList,
+    fetch: fetchColumnList,
+  }: { response: ColumnInfo[]; fetch: () => void } = useFetch({
     url: "/api/columns",
     method: "get",
     autoFetch: true,
   });
 
   const { fetch: fetchCardPatch } = useFetch({
-    url: `/api/cards/${cloneCardData?.cardId}`,
+    url: `/api/cards/${draggingCard.cardId}`,
     method: "patch",
-    body: bodyContent,
+    body: cardPositionInfo,
   });
 
-  useEffect(() => {
-    updateBodyContent();
-  }, [mousePosition]);
-
-  useEffect(() => {
-    response && setColumnList(response);
-  }, [response]);
-
-  const updateBodyContent = () => {
-    if (mousePosition.columnIndex === -1 || mousePosition.cardIndex === -1) {
-      return;
-    }
-
-    const currentColumnId = columnList[mousePosition.columnIndex].columnId;
-    const currentCards = columnList[mousePosition.columnIndex].cards;
+  const updateCardPositionInfo = () => {
+    const currentColumnId = columnList[ghostInfo.columnIndex].columnId;
+    const currentCards = columnList[ghostInfo.columnIndex].cards;
 
     const topCardId =
-      mousePosition.cardIndex > 0
-        ? currentCards[mousePosition.cardIndex - 1].cardId
-        : null;
-    const bottomCardId =
-      mousePosition.cardIndex < currentCards.length - 1
-        ? currentCards[mousePosition.cardIndex + 1].cardId
+      ghostInfo.cardIndex > 0
+        ? currentCards[ghostInfo.cardIndex - 1].cardId
         : null;
 
-    const result = {
+    const bottomCardId =
+      ghostInfo.cardIndex < currentCards.length ||
+      ghostInfo.cardIndex === currentCards.length - 1
+        ? currentCards[ghostInfo.cardIndex].cardId
+        : null;
+
+    const cardMovePositionInfo = {
       changedColumnId: currentColumnId,
-      TopCardId: topCardId,
-      BottomCardId: bottomCardId,
+      topCardId: topCardId,
+      bottomCardId: bottomCardId,
     };
 
-    setBodyContent(result);
+    setCardPositionInfo(cardMovePositionInfo);
   };
 
-  const onCardChanged = async () => {
-    await fetch();
-  };
-
-  const setCloneCard = (cardData: CardData, initialPosition: Position) => {
-    setCloneCardData((prev) => {
-      if (!_.isEqual(prev, cardData)) {
-        return cardData;
-      }
-      return prev;
-    });
-
-    setInitialPosition(initialPosition);
-  };
-
-  const resetCloneCard = () => {
-    setCloneCardData(undefined);
-    setMousePosition({
-      columnIndex: -1,
-      cardIndex: -1,
-    });
-  };
-
-  const onMouseMove = debounce((event: React.MouseEvent) => {
-    if (!cloneCardData || !mainRef.current) return;
-
-    const mousePos = { x: event.clientX, y: event.clientY };
-
-    const columnWidth = 332;
-    const columnMargin = 24;
-    const cardHeight = 88;
-    const cardMargin = 10;
-
-    // mainRef 영역의 경계를 가져옵니다.
-    const mainRect = mainRef.current.getBoundingClientRect();
-
-    // 마우스가 mainRef 영역에 있는지 확인합니다.
-    const isMouseOverMainRef =
-      mousePos.x > mainRect.left &&
-      mousePos.x < mainRect.right &&
-      mousePos.y > mainRect.top &&
-      mousePos.y < mainRect.bottom;
-
-    if (isMouseOverMainRef) {
-      // columnIndex를 계산합니다.
-      const columnIndex = Math.floor(
-        (mousePos.x - mainRect.left) / (columnWidth + columnMargin)
-      );
-
-      const currentColumn = columnList[columnIndex];
-      if (!currentColumn) return;
-
-      // cardIndex를 계산하고 현재 컬럼의 카드 수를 초과하지 않도록 제한합니다.
-      const cardIndex = Math.min(
-        Math.floor((mousePos.y - mainRect.top) / (cardHeight + cardMargin)),
-        currentColumn.cards.length
-      );
-
-      // 마우스 위치가 변경되었을 때에만 mousePosition을 업데이트합니다.
-      const isMousePositionChanged =
-        mousePosition.columnIndex !== columnIndex ||
-        mousePosition.cardIndex !== cardIndex;
-
-      if (isMousePositionChanged) {
-        setMousePosition({ columnIndex, cardIndex });
-      }
-    }
-  }, 30);
-
-  const onMouseUp = async () => {
-    if (mousePosition.columnIndex === -1 || mousePosition.cardIndex === -1) {
+  const handleMouseUp: MouseEventHandler = async () => {
+    if (!isDragging) {
       return;
     }
 
-    resetCloneCard();
+    stopDrag();
+    updateCardPositionInfo();
+
     await fetchCardPatch();
-    await onCardChanged();
+    onCardChanged();
+  };
+
+  const onCardChanged = () => fetchColumnList();
+
+  const handleMouseMove: MouseEventHandler = (e) => {
+    if (!isDragging) {
+      return;
+    }
+
+    const movePosition = { x: e.movementX, y: e.movementY };
+    moveDragging(movePosition);
+
+    // TODO: 고정값 아닐 때도 가능하도록 추상화 필요
+    const columnValue = {
+      width: 332,
+      margin: 24,
+    };
+    const cardValue = {
+      height: 88,
+      margin: 10,
+    };
+
+    const mousePos = { x: e.clientX, y: e.clientY };
+    const mainRect = mainRef.current && mainRef.current.getBoundingClientRect();
+    if (!mainRect) {
+      return;
+    }
+
+    const columnIndex = Math.floor(
+      (mousePos.x - mainRect.left) / (columnValue.width + columnValue.margin)
+    );
+    const currentColumn = columnList[columnIndex];
+    if (!currentColumn) {
+      return;
+    }
+
+    const cardIndex = Math.min(
+      Math.floor(
+        (mousePos.y - mainRect.top) / (cardValue.height + cardValue.margin)
+      ),
+      currentColumn.cards.length
+    );
+
+    moveGhost({ columnIndex, cardIndex });
   };
 
   return (
     <div
       ref={mainRef}
       css={mainStyle}
-      onMouseUp={onMouseUp}
-      onMouseMove={onMouseMove}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
     >
       {columnList &&
         columnList.map(({ columnId, columnName, cards }, index) => (
           <Column
             key={columnId}
+            columnIndex={index}
             columnId={columnId}
             columnName={columnName}
             cards={cards}
             onCardChanged={onCardChanged}
-            setCloneCard={setCloneCard}
-            cloneState={{
-              hasClone: index === mousePosition.columnIndex,
-              cardIndex: mousePosition.cardIndex,
-              cloneCardData: cloneCardData,
-            }}
           />
         ))}
-      {cloneCardData !== undefined && (
-        <CloneCard cardData={cloneCardData} initialPosition={initialPosition} />
-      )}
       <FAB onColumnChanged={onCardChanged} />
+      {draggingCard && position && (
+        <DraggingCard cardData={draggingCard} position={position} />
+      )}
     </div>
   );
 };
@@ -200,6 +151,5 @@ const mainStyle = css({
   display: "flex",
   gap: "24px",
   width: "1280px",
-  overflow: "hidden",
   overflowX: "scroll",
 });

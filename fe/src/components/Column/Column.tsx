@@ -1,56 +1,41 @@
 import { Card, CardData } from "@components/Card/Card";
+import { GhostCard } from "@components/Card/DraggingCard";
 import { NewCard } from "@components/Card/NewCard";
-import { Position } from "@components/Main";
+import { css } from "@emotion/react";
+import { useDragDropContext } from "context/DragDropContext";
 import React, { useState } from "react";
 import { ColumnHeader } from "./ColumnHeader";
 
-interface ColumnDataProps {
+export interface ColumnInfo {
   columnId: number;
+  columnIndex: number;
   columnName: string;
   cards: CardData[];
+}
+
+interface ColumnProps extends ColumnInfo {
   onCardChanged: () => void;
-  setCloneCard: (cardData: CardData, initialPosition: Position) => void;
-  cloneState: {
-    hasClone: boolean;
-    cardIndex: number;
-    cloneCardData: CardData | undefined;
-  };
 }
 
 export const Column = ({
   columnId,
+  columnIndex,
   columnName,
   cards,
   onCardChanged,
-  setCloneCard,
-  cloneState,
-}: ColumnDataProps) => {
+}: ColumnProps) => {
+  const { ghostInfo, draggingCard } = useDragDropContext();
   const [isAdding, setIsAdding] = useState<boolean>(false);
+
   const onAddCardClick = () => setIsAdding((prev) => !prev);
   const onAddCancelClick = () => setIsAdding(false);
+
   const cardCount = cards.length;
-
-  const isCloneValid = cloneState.hasClone && cloneState.cloneCardData;
-
-  const CloneCard = (
-    <div css={{ opacity: "0.5" }}>
-      <Card
-        cardData={cloneState.cloneCardData!}
-        onCardChanged={onCardChanged}
-        setCloneCard={setCloneCard}
-      />
-    </div>
-  );
+  const isGhostLastPosition =
+    ghostInfo.columnIndex === columnIndex && ghostInfo.cardIndex === cardCount;
 
   return (
-    <div
-      css={{
-        width: "332px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-      }}
-    >
+    <div css={columnStyle}>
       <ColumnHeader
         columnId={columnId}
         columnName={columnName}
@@ -65,18 +50,26 @@ export const Column = ({
           onCardChanged={onCardChanged}
         />
       )}
-      {cards.map((cardData, index) => (
-        <React.Fragment key={`${index}_${cardData.cardId}`}>
-          {isCloneValid && cloneState.cardIndex === index && CloneCard}
-          <Card
-            key={`${index}_${cardData.cardId}`}
-            cardData={cardData}
-            onCardChanged={onCardChanged}
-            setCloneCard={setCloneCard}
-          />
-        </React.Fragment>
-      ))}
-      {isCloneValid && cloneState.cardIndex === cards.length && CloneCard}
+      {cards.map((cardData, index) => {
+        const isGhostPosition =
+          ghostInfo.columnIndex === columnIndex &&
+          ghostInfo.cardIndex === index;
+
+        return (
+          <React.Fragment key={`${index}_${cardData.cardId}`}>
+            {isGhostPosition && <GhostCard cardData={draggingCard}></GhostCard>}
+            <Card cardData={cardData} onCardChanged={onCardChanged} />
+          </React.Fragment>
+        );
+      })}
+      {isGhostLastPosition && <GhostCard cardData={draggingCard}></GhostCard>}
     </div>
   );
 };
+
+const columnStyle = css({
+  width: "332px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+});

@@ -112,6 +112,12 @@ section {
 }
 body {
   line-height: 1;
+  /* 글씨 Drag 기능 비활성화 */
+  -ms-user-select: none;
+  -moz-user-select: -moz-none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
 }
 menu,
 ol,

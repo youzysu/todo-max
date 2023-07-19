@@ -1,29 +1,31 @@
-import { Position } from "@components/Main";
 import { RemoveModal } from "@components/base/RemoveModal";
 import { dropShadow, radius } from "@constants/objectStyle";
 import { css } from "@emotion/react";
+import { useDragDropContext } from "context/DragDropContext";
 import { useFetch } from "hooks/useFetch";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { MouseEventHandler, memo, useRef, useState } from "react";
 import { CardEditor } from "./CardEditor";
 import { CardViewer } from "./CardViewer";
 
-export interface CardData extends HTMLAttributes<HTMLDivElement> {
+export interface CardData {
   cardId: number;
-  title: string;
-  content: string;
+  cardTitle: string;
+  cardContent: string;
   writer: string;
 }
 
 interface CardProps {
   cardData: CardData;
   onCardChanged: () => void;
-  setCloneCard: (CardData: CardData, initialPosition: Position) => void;
 }
 
-export const Card = ({ cardData, onCardChanged, setCloneCard }: CardProps) => {
+export const Card = memo(({ cardData, onCardChanged }: CardProps) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const { startDrag, draggingCard } = useDragDropContext();
+  const isDragging = draggingCard.cardId === cardData.cardId;
+
   const [status, setStatus] = useState<"viewer" | "editor">("viewer");
-  const [isMouseDown, setIsMouseDown] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
 
   const { fetch: fetchDelete } = useFetch({
@@ -31,25 +33,26 @@ export const Card = ({ cardData, onCardChanged, setCloneCard }: CardProps) => {
     method: "delete",
   });
 
-  const onClickEdit = () => {
-    setStatus("editor");
-  };
+  const onClickEdit = () => setStatus("editor");
+  const exitEdit = () => setStatus("viewer");
 
-  const exitEdit = () => {
-    setStatus("viewer");
-  };
+  const openModal = () => setIsOpenModal(true);
+  const closeModal = () => setIsOpenModal(false);
 
   const onSubmit = () => {
     onCardChanged();
     exitEdit();
   };
 
-  const openModal = () => {
-    setIsOpenModal(true);
-  };
+  const handleMouseDown: MouseEventHandler = (e) => {
+    if (e.target instanceof Element && e.target.closest("button")) {
+      return;
+    }
 
-  const closeModal = () => {
-    setIsOpenModal(false);
+    const cardRect = cardRef.current?.getBoundingClientRect();
+    const startPosition = { x: cardRect?.x || 0, y: cardRect?.y || 0 };
+
+    startDrag({ cardData: cardData, startPosition: startPosition });
   };
 
   const onClickRemove = async () => {
@@ -57,34 +60,11 @@ export const Card = ({ cardData, onCardChanged, setCloneCard }: CardProps) => {
     onCardChanged();
   };
 
-  const onMouseDownHandler = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsMouseDown(true);
-  };
-
-  const onMouseMoveHandler = (e: React.MouseEvent) => {
-    if (isMouseDown) {
-      setCloneCard(cardData, { x: e.clientX, y: e.clientY });
-      setIsDragging(true);
-    }
-  };
-
-  const onMouseUpHandler = () => {
-    setIsMouseDown(false);
-  };
-
-  useEffect(() => {
-    window.addEventListener("mouseup", onMouseUpHandler);
-    return () => {
-      window.removeEventListener("mouseup", onMouseUpHandler);
-    };
-  }, []);
-
   return (
     <div
-      css={[cardStyle, `${isDragging && "display: none"};`]}
-      onMouseDown={onMouseDownHandler}
-      onMouseMove={onMouseMoveHandler}
+      ref={cardRef}
+      css={[cardStyle, isDragging && { display: "none" }]}
+      onMouseDown={handleMouseDown}
     >
       {status === "viewer" ? (
         <>
@@ -110,14 +90,12 @@ export const Card = ({ cardData, onCardChanged, setCloneCard }: CardProps) => {
       )}
     </div>
   );
-};
+});
 
-export const cardStyle = () => {
-  return css`
-    width: 300px;
-    height: 88px;
-    padding: 16px;
-    ${radius.radius8}
-    ${dropShadow.normal}
-  `;
-};
+export const cardStyle = css`
+  width: 300px;
+  height: 88px;
+  padding: 16px;
+  ${radius.radius8}
+  ${dropShadow.normal}
+`;

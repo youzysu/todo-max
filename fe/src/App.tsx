@@ -1,5 +1,6 @@
 import { Header } from "@components/Header";
 import { Main } from "@components/Main";
+import { DragDropProvider } from "context/DragDropContext";
 
 export function App() {
   return (
@@ -12,7 +13,9 @@ export function App() {
       }}
     >
       <Header />
-      <Main />
+      <DragDropProvider>
+        <Main />
+      </DragDropProvider>
     </div>
   );
 }

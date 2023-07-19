@@ -14,10 +14,10 @@ interface CardEditRequestBody {
   changedCardContent: string;
 }
 
-interface MoveCardBodyType {
+export interface MoveCardBodyType extends Record<string, unknown> {
   changedColumnId: number;
-  TopCardId: number | null;
-  BottomCardId: number | null;
+  topCardId: number | null;
+  bottomCardId: number | null;
 }
 
 interface Column {
@@ -38,14 +38,14 @@ let columnData: Column[] = [
     cards: [
       {
         cardId: 3,
-        title: "HTML/CSS 공부하기",
-        content: "add, commit, push, rebase, merge",
+        cardTitle: "HTML/CSS 공부하기",
+        cardContent: "add, commit, push, rebase, merge",
         writer: "web",
       },
       {
         cardId: 20,
-        title: "블로그에 포스팅할 것",
-        content: "모던 자바스크립트 1장",
+        cardTitle: "블로그에 포스팅할 것",
+        cardContent: "모던 자바스크립트 1장",
         writer: "web",
       },
     ],
@@ -56,14 +56,14 @@ let columnData: Column[] = [
     cards: [
       {
         cardId: 40,
-        title: "HTML/CSS 공부하기",
-        content: "add, commit, push, rebase, merge",
+        cardTitle: "HTML/CSS 공부하기",
+        cardContent: "add, commit, push, rebase, merge",
         writer: "web",
       },
       {
         cardId: 30,
-        title: "블로그에 포스팅할 것",
-        content: "모던 자바스크립트 1장",
+        cardTitle: "블로그에 포스팅할 것",
+        cardContent: "모던 자바스크립트 1장",
         writer: "web",
       },
     ],
@@ -98,7 +98,7 @@ export const handlers = [
     return res(ctx.status(200), ctx.json(columnData));
   }),
 
-  rest.get("/api/histories", (req, res, ctx) => {
+  rest.get("/api/histories", (_, res, ctx) => {
     return res(ctx.status(200), ctx.json(historyData));
   }),
 
@@ -113,7 +113,7 @@ export const handlers = [
     return res(ctx.status(200), ctx.json(columnData));
   }),
 
-  rest.delete("/api/histories", (req, res, ctx) => {
+  rest.delete("/api/histories", (_, res, ctx) => {
     historyData = [];
 
     return res(ctx.status(200), ctx.json(historyData));
@@ -138,8 +138,8 @@ export const handlers = [
         if (card.cardId === Number(id)) {
           return {
             ...card,
-            title: changedCardTitle,
-            content: changedCardContent,
+            cardTitle: changedCardTitle,
+            cardContent: changedCardContent,
           };
         }
         return card;
@@ -171,8 +171,8 @@ export const handlers = [
       await req.json<CardAddRequestBody>();
     const newCard = {
       cardId: Number(faker.number.octal()),
-      title: cardTitle,
-      content: cardContent,
+      cardTitle: cardTitle,
+      cardContent: cardContent,
       writer: "web",
     };
 
@@ -203,9 +203,8 @@ export const handlers = [
 
   rest.patch("/api/cards/:id", (req, res, ctx) => {
     const { id } = req.params;
-    const { changedColumnId, TopCardId, BottomCardId } =
+    const { changedColumnId, topCardId, bottomCardId } =
       req.body as MoveCardBodyType;
-    console.log(req.body);
 
     let movingCard = null;
     let targetColumn = null;
@@ -225,16 +224,16 @@ export const handlers = [
 
     if (targetColumn && movingCard) {
       targetColumn = targetColumn as Column;
-      if (TopCardId === null) {
+      if (topCardId === null) {
         targetColumn.cards.unshift(movingCard);
-      } else if (BottomCardId === null) {
+      } else if (bottomCardId === null) {
         targetColumn.cards.push(movingCard);
       } else {
         const topCardIndex = targetColumn.cards.findIndex(
-          (card) => card.cardId === TopCardId
+          (card) => card.cardId === topCardId
         );
         const bottomCardIndex = targetColumn.cards.findIndex(
-          (card) => card.cardId === BottomCardId
+          (card) => card.cardId === bottomCardId
         );
         if (topCardIndex < bottomCardIndex) {
           targetColumn.cards.splice(bottomCardIndex, 0, movingCard);
