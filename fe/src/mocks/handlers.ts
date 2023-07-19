@@ -1,12 +1,23 @@
 import { CardData } from "@components/Card/Card";
 import { faker } from "@faker-js/faker";
 import { rest } from "msw";
-import { CardAddRequestBody } from "utils/http";
 import { CARDS } from "./data";
 
-interface RequestBodyType {
+type CardAddRequestBody = {
+  columnId: number;
+  cardTitle: string;
+  cardContent: string;
+};
+
+interface CardEditRequestBody {
   changedCardTitle: string;
   changedCardContent: string;
+}
+
+interface MoveCardBodyType {
+  changedColumnId: number;
+  TopCardId: number | null;
+  BottomCardId: number | null;
 }
 
 interface Column {
@@ -56,6 +67,11 @@ let columnData: Column[] = [
         writer: "web",
       },
     ],
+  },
+  {
+    columnId: 4,
+    columnName: "하기 싫은 일",
+    cards: [],
   },
 ];
 
@@ -111,12 +127,10 @@ export const handlers = [
     return res(ctx.status(200), ctx.json(columnData));
   }),
 
-  rest.put("/api/cards/:id", (req, res, ctx) => {
+  rest.put("/api/cards/:id", async (req, res, ctx) => {
     const { id } = req.params;
     const { changedCardTitle, changedCardContent } =
-      req.body as RequestBodyType;
-
-    console.log(changedCardContent);
+      await req.json<CardEditRequestBody>();
 
     columnData = columnData.map((column) => ({
       ...column,
@@ -185,5 +199,51 @@ export const handlers = [
 
     columnData.push(newColumn);
     return res(ctx.status(200), ctx.json(newColumn));
+  }),
+
+  rest.patch("/api/cards/:id", (req, res, ctx) => {
+    const { id } = req.params;
+    const { changedColumnId, TopCardId, BottomCardId } =
+      req.body as MoveCardBodyType;
+    console.log(req.body);
+
+    let movingCard = null;
+    let targetColumn = null;
+
+    columnData.forEach((column) => {
+      const cardIndex = column.cards.findIndex(
+        (card) => card.cardId === Number(id)
+      );
+      if (cardIndex > -1) {
+        movingCard = column.cards[cardIndex];
+        column.cards.splice(cardIndex, 1);
+      }
+      if (column.columnId === changedColumnId) {
+        targetColumn = column;
+      }
+    });
+
+    if (targetColumn && movingCard) {
+      targetColumn = targetColumn as Column;
+      if (TopCardId === null) {
+        targetColumn.cards.unshift(movingCard);
+      } else if (BottomCardId === null) {
+        targetColumn.cards.push(movingCard);
+      } else {
+        const topCardIndex = targetColumn.cards.findIndex(
+          (card) => card.cardId === TopCardId
+        );
+        const bottomCardIndex = targetColumn.cards.findIndex(
+          (card) => card.cardId === BottomCardId
+        );
+        if (topCardIndex < bottomCardIndex) {
+          targetColumn.cards.splice(bottomCardIndex, 0, movingCard);
+        } else {
+          targetColumn.cards.splice(topCardIndex, 0, movingCard);
+        }
+      }
+    }
+
+    return res(ctx.status(200), ctx.json(columnData));
   }),
 ];
