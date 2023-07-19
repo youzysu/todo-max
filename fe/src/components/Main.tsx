@@ -1,9 +1,11 @@
+import { css } from "@emotion/react";
 import { useFetch } from "hooks/useFetch";
 import _, { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { CardData } from "./Card/Card";
 import { CloneCard } from "./Card/CloneCard";
 import Column from "./Column";
+import { FAB } from "./FAB";
 
 export interface Position {
   x: number;
@@ -39,7 +41,7 @@ export const Main = () => {
   const [bodyContent, setBodyContent] = useState({});
 
   const { response, errorMsg, loading, fetch } = useFetch({
-    url: "/api",
+    url: "/api/columns",
     method: "get",
     autoFetch: true,
   });
@@ -166,7 +168,7 @@ export const Main = () => {
   return (
     <div
       ref={mainRef}
-      css={{ display: "flex", gap: "24px" }}
+      css={mainStyle}
       onMouseUp={onMouseUp}
       onMouseMove={onMouseMove}
     >
@@ -189,6 +191,15 @@ export const Main = () => {
       {cloneCardData !== undefined && (
         <CloneCard cardData={cloneCardData} initialPosition={initialPosition} />
       )}
+      <FAB onColumnChanged={onCardChanged} />
     </div>
   );
 };
+
+const mainStyle = css({
+  display: "flex",
+  gap: "24px",
+  width: "1280px",
+  overflow: "hidden",
+  overflowX: "scroll",
+});
