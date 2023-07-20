@@ -28,20 +28,11 @@ export const CardEditor = ({
   const { fetch: fetchAdd } = useFetch({
     url: "/api/cards",
     method: "post",
-    body: {
-      columnId: columnId,
-      cardTitle: title,
-      cardContent: content,
-    },
   });
 
   const { fetch: fetchUpdate } = useFetch({
     url: `/api/cards/${cardData?.cardId}`,
     method: "put",
-    body: {
-      changedCardTitle: title,
-      changedCardContent: content,
-    },
   });
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,8 +51,17 @@ export const CardEditor = ({
 
   const handleClickSubmit = async () => {
     const fetchType = {
-      add: fetchAdd,
-      edit: fetchUpdate,
+      add: () =>
+        fetchAdd({
+          columnId: columnId,
+          cardTitle: title,
+          cardContent: content,
+        }),
+      edit: () =>
+        fetchUpdate({
+          changedCardTitle: title,
+          changedCardContent: content,
+        }),
     };
 
     await fetchType[type]();
