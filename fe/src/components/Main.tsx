@@ -1,33 +1,25 @@
-import { css } from "@emotion/react";
 import { useFetch } from "hooks/useFetch";
-import _, { debounce } from "lodash";
-import { useEffect, useRef, useState } from "react";
+import _ from "lodash";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CardData } from "./Card/Card";
 import { CloneCard } from "./Card/CloneCard";
 import Column from "./Column";
-import { FAB } from "./FAB";
+import { ColumnType } from "./Column/Column";
 
 export interface Position {
   x: number;
   y: number;
 }
 
-interface Card {
-  cardId: number;
-  title: string;
-  content: string;
-  writer: string;
-}
-
-interface Column {
-  columnId: number;
-  columnName: string;
-  cards: Card[];
+export interface MoveCardBodyType {
+  changedColumnId: number;
+  TopCardId: number | null;
+  BottomCardId: number | null;
 }
 
 export const Main = () => {
   const mainRef = useRef<HTMLDivElement>(null);
-  const [mousePosition, setMousePosition] = useState({
+  const [targetPosition, setTargetPosition] = useState({
     columnIndex: -1,
     cardIndex: -1,
   });
@@ -36,11 +28,13 @@ export const Main = () => {
     x: 0,
     y: 0,
   });
-  const [columnList, setColumnList] = useState<Column[]>([]);
   const [cloneCardData, setCloneCardData] = useState<CardData>();
-  const [bodyContent, setBodyContent] = useState({});
+  const [cardUpdateBody, setCardUpdateBody] = useState({});
 
-  const { response, errorMsg, loading, fetch } = useFetch({
+  const {
+    response: columnList,
+    fetch: onCardChanged,
+  }: { response: ColumnType[]; fetch: () => Promise<void> } = useFetch({
     url: "/api/columns",
     method: "get",
     autoFetch: true,
@@ -49,67 +43,58 @@ export const Main = () => {
   const { fetch: fetchCardPatch } = useFetch({
     url: `/api/cards/${cloneCardData?.cardId}`,
     method: "patch",
-    body: bodyContent,
+    body: cardUpdateBody,
   });
 
   useEffect(() => {
     updateBodyContent();
-  }, [mousePosition]);
-
-  useEffect(() => {
-    response && setColumnList(response);
-  }, [response]);
+  }, [targetPosition]);
 
   const updateBodyContent = () => {
-    if (mousePosition.columnIndex === -1 || mousePosition.cardIndex === -1) {
+    if (targetPosition.columnIndex === -1 || targetPosition.cardIndex === -1) {
       return;
     }
 
-    const currentColumnId = columnList[mousePosition.columnIndex].columnId;
-    const currentCards = columnList[mousePosition.columnIndex].cards;
+    const currentColumnId = columnList[targetPosition.columnIndex].columnId;
+    const currentCards = columnList[targetPosition.columnIndex].cards;
 
     const topCardId =
-      mousePosition.cardIndex > 0
-        ? currentCards[mousePosition.cardIndex - 1].cardId
+      targetPosition.cardIndex > 0
+        ? currentCards[targetPosition.cardIndex - 1].cardId
         : null;
+
     const bottomCardId =
-      mousePosition.cardIndex < currentCards.length - 1
-        ? currentCards[mousePosition.cardIndex + 1].cardId
+      targetPosition.cardIndex < currentCards.length ||
+      targetPosition.cardIndex === currentCards.length - 1
+        ? currentCards[targetPosition.cardIndex].cardId
         : null;
 
     const result = {
       changedColumnId: currentColumnId,
-      TopCardId: topCardId,
-      BottomCardId: bottomCardId,
+      topCardId: topCardId,
+      bottomCardId: bottomCardId,
     };
 
-    setBodyContent(result);
+    setCardUpdateBody(result);
   };
 
-  const onCardChanged = async () => {
-    await fetch();
-  };
-
-  const setCloneCard = (cardData: CardData, initialPosition: Position) => {
-    setCloneCardData((prev) => {
-      if (!_.isEqual(prev, cardData)) {
-        return cardData;
-      }
-      return prev;
-    });
-
-    setInitialPosition(initialPosition);
-  };
+  const setCloneCard = useCallback(
+    (cardData: CardData, initialPosition: Position) => {
+      setCloneCardData(cardData);
+      setInitialPosition(initialPosition);
+    },
+    []
+  );
 
   const resetCloneCard = () => {
     setCloneCardData(undefined);
-    setMousePosition({
+    setTargetPosition({
       columnIndex: -1,
       cardIndex: -1,
     });
   };
 
-  const onMouseMove = debounce((event: React.MouseEvent) => {
+  const onMouseMove = (event: React.MouseEvent) => {
     if (!cloneCardData || !mainRef.current) return;
 
     const mousePos = { x: event.clientX, y: event.clientY };
@@ -146,29 +131,31 @@ export const Main = () => {
 
       // 마우스 위치가 변경되었을 때에만 mousePosition을 업데이트합니다.
       const isMousePositionChanged =
-        mousePosition.columnIndex !== columnIndex ||
-        mousePosition.cardIndex !== cardIndex;
+        targetPosition.columnIndex !== columnIndex ||
+        targetPosition.cardIndex !== cardIndex;
 
       if (isMousePositionChanged) {
-        setMousePosition({ columnIndex, cardIndex });
+        setTargetPosition({ columnIndex, cardIndex });
       }
     }
-  }, 30);
+  };
 
   const onMouseUp = async () => {
-    if (mousePosition.columnIndex === -1 || mousePosition.cardIndex === -1) {
-      return;
-    }
+    if (targetPosition.columnIndex !== -1 && targetPosition.cardIndex !== -1) {
+      resetCloneCard();
 
-    resetCloneCard();
-    await fetchCardPatch();
-    await onCardChanged();
+      updateBodyContent();
+      if (!_.isEmpty(cardUpdateBody)) {
+        await fetchCardPatch();
+        await onCardChanged();
+      }
+    }
   };
 
   return (
     <div
       ref={mainRef}
-      css={mainStyle}
+      css={{ display: "flex", gap: "24px" }}
       onMouseUp={onMouseUp}
       onMouseMove={onMouseMove}
     >
@@ -182,8 +169,8 @@ export const Main = () => {
             onCardChanged={onCardChanged}
             setCloneCard={setCloneCard}
             cloneState={{
-              hasClone: index === mousePosition.columnIndex,
-              cardIndex: mousePosition.cardIndex,
+              hasClone: index === targetPosition.columnIndex,
+              cardIndex: targetPosition.cardIndex,
               cloneCardData: cloneCardData,
             }}
           />
@@ -191,15 +178,6 @@ export const Main = () => {
       {cloneCardData !== undefined && (
         <CloneCard cardData={cloneCardData} initialPosition={initialPosition} />
       )}
-      <FAB onColumnChanged={onCardChanged} />
     </div>
   );
 };
-
-const mainStyle = css({
-  display: "flex",
-  gap: "24px",
-  width: "1280px",
-  overflow: "hidden",
-  overflowX: "scroll",
-});

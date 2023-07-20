@@ -7,8 +7,8 @@ import { CardData } from "./Card";
 
 interface CardViewerProps {
   cardData: CardData;
-  onClickEdit: () => void;
-  onClickRemove: () => void;
+  onClickEdit?: () => void;
+  onClickRemove?: () => void;
 }
 
 export const CardViewer = ({
@@ -16,7 +16,7 @@ export const CardViewer = ({
   onClickEdit,
   onClickRemove,
 }: CardViewerProps) => {
-  const { title, content, writer } = cardData;
+  const { cardTitle, cardContent, writer } = cardData;
 
   return (
     <div
@@ -34,14 +34,14 @@ export const CardViewer = ({
             css={{ height: "17px", color: COLOR_VARIANTS.textStrong }}
             typography="displayBold14"
           >
-            {title}
+            {cardTitle}
           </Text>
 
           <Text
             css={{ height: "17px", color: COLOR_VARIANTS.textDefault }}
             typography="displayBold14"
           >
-            {content}
+            {cardContent}
           </Text>
         </div>
         <Text
